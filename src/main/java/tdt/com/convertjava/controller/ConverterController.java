@@ -17,6 +17,8 @@ public class ConverterController {
   @PostMapping("/convert")
   public ResponseEntity<InputStreamResource> convertDiuTupToMp3(@RequestParam String a) {
     try {
+//      String ytdlpPath = "D:/tools/yt-dlp.exe";
+//      String ffmpegDir = "D:/tools/ffmpeg/bin";
       // Trong hàm của controller:
       String ytdlpPath =
           ExecutableResolver.resolve(
