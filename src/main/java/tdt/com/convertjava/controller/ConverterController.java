@@ -9,15 +9,32 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tdt.com.convertjava.util.ExecutableResolver;
 
 @RestController
 public class ConverterController {
 
   @PostMapping("/convert")
-  public ResponseEntity<InputStreamResource> convertYoutubeToMp3(@RequestParam String youtubeUrl) {
+  public ResponseEntity<InputStreamResource> convertDiuTupToMp3(@RequestParam String a) {
     try {
-      String ytDlpPath = "D:/tools/yt-dlp.exe";
-      String ffmpegDir = "D:/tools/ffmpeg/bin";
+      // Trong hàm của controller:
+      String ytdlpPath =
+          ExecutableResolver.resolve(
+              "bin/yt-dlp.exe", // resource path cho Windows (nếu có)
+              "bin/yt-dlp", // resource path cho Linux (dùng khi deploy)
+              "D:/tools/yt-dlp.exe", // fallback local Windows
+              "yt-dlp" // prefix file tạm (đặt tên thôi)
+              );
+
+      String ffmpegPath =
+          ExecutableResolver.resolve(
+              "bin/ffmpeg/bin/ffmpeg.exe", // resource path cho Windows (nếu có)
+              "bin/ffmpeg/ffmpeg", // resource path cho Linux (dùng khi deploy)
+              "D:/tools/ffmpeg/bin/ffmpeg.exe", // fallback local Windows
+              "ffmpeg");
+
+      String ffmpegDir = new File(ffmpegPath).getParent();
+
       // Tạo tên file độc nhất bằng cách thêm timestamp
       String outputTemplate = "%(title)s_" + System.currentTimeMillis() + ".%(ext)s";
 
@@ -25,24 +42,30 @@ public class ConverterController {
       Path tempDirPath = Files.createTempDirectory("convert_");
       File tempDir = tempDirPath.toFile();
 
-      ProcessBuilder pb = new ProcessBuilder(
-              ytDlpPath,
+      ProcessBuilder pb =
+          new ProcessBuilder(
+              ytdlpPath,
               "--no-check-certificate",
               "--force-ipv4",
               "--extract-audio",
-              "--audio-format", "mp3",
-              "--ffmpeg-location", ffmpegDir,
-              "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-              "-f", "bestaudio",
-              "-o", outputTemplate,
-              youtubeUrl
-      );
+              "--audio-format",
+              "mp3",
+              "--ffmpeg-location",
+              ffmpegDir,
+              "--user-agent",
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+              "-f",
+              "bestaudio",
+              "-o",
+              outputTemplate,
+              a);
       // Thiết lập thư mục làm việc của process là thư mục tạm
       pb.directory(tempDir);
       pb.redirectErrorStream(true);
       Process process = pb.start();
 
-      try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+      try (BufferedReader reader =
+          new BufferedReader(new InputStreamReader(process.getInputStream()))) {
         String line;
         while ((line = reader.readLine()) != null) {
           System.out.println("yt-dlp: " + line);
@@ -66,23 +89,24 @@ public class ConverterController {
       String asciiName = toAscii(originalName);
 
       FileInputStream fis = new FileInputStream(mp3File);
-      InputStream autoDeleteStream = new FilterInputStream(fis) {
-        @Override
-        public void close() throws IOException {
-          super.close();
-          System.out.println("🔥 Đã gửi xong file, xóa: " + mp3File.getName());
-          mp3File.delete();
-          deleteDirectory(tempDir);
-        }
-      };
+      InputStream autoDeleteStream =
+          new FilterInputStream(fis) {
+            @Override
+            public void close() throws IOException {
+              super.close();
+              System.out.println("🔥 Đã gửi xong file, xóa: " + mp3File.getName());
+              mp3File.delete();
+              deleteDirectory(tempDir);
+            }
+          };
 
       InputStreamResource resource = new InputStreamResource(autoDeleteStream);
 
       return ResponseEntity.ok()
-              .contentLength(mp3File.length())
-              .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + asciiName + "\"")
-              .contentType(MediaType.parseMediaType("audio/mpeg"))
-              .body(resource);
+          .contentLength(mp3File.length())
+          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + asciiName + "\"")
+          .contentType(MediaType.parseMediaType("audio/mpeg"))
+          .body(resource);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -106,10 +130,24 @@ public class ConverterController {
   // ✅ Xoá dấu tiếng Việt + ký tự ngoài ASCII (emoji, biểu tượng lạ)
   private String toAscii(String input) {
     String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
-    String noDiacritics = normalized
+    String noDiacritics =
+        normalized
             .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
             .replaceAll("đ", "d")
             .replaceAll("Đ", "D");
     return noDiacritics.replaceAll("[^\\x20-\\x7E]", "_");
   }
+
+  //  private File extractToTempFile(String resourcePath, String fileName) throws IOException {
+  //    InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath);
+  //    if (in == null) {
+  //      throw new FileNotFoundException("Resource not found: " + resourcePath);
+  //    }
+  //
+  //    File tempFile = File.createTempFile(fileName, "");
+  //    tempFile.setExecutable(true);
+  //    Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+  //    return tempFile;
+  //  }
+
 }
