@@ -1,7 +1,7 @@
 #!/bin/bash
+
 echo "👉 Đang tải yt-dlp và ffmpeg (Linux)..."
 
-# Thư mục đích
 TARGET="src/main/resources/bin"
 
 # Tải yt-dlp
@@ -13,7 +13,9 @@ chmod +x "$TARGET/yt-dlp"
 mkdir -p "$TARGET/ffmpeg"
 curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ffmpeg.tar.xz
 tar -xf ffmpeg.tar.xz
-cp ffmpeg-*-static/ffmpeg "$TARGET/ffmpeg/ffmpeg"
+
+FOLDER=$(find . -type d -name "ffmpeg-*-static" | head -n 1)
+cp "$FOLDER/ffmpeg" "$TARGET/ffmpeg/ffmpeg"
 chmod +x "$TARGET/ffmpeg/ffmpeg"
 
 echo "✅ Hoàn tất."
