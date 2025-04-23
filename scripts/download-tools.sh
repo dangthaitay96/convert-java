@@ -14,7 +14,13 @@ mkdir -p "$TARGET/ffmpeg"
 curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ffmpeg.tar.xz
 tar -xf ffmpeg.tar.xz
 
-FOLDER=$(find . -type d -name "ffmpeg-*-static" | head -n 1)
+# Sửa ở đây: dùng wildcard chính xác hơn
+FOLDER=$(find . -maxdepth 1 -type d -name "ffmpeg-*-static" | head -n 1)
+
+# Log thêm cho chắc
+echo "📁 Thư mục giải nén: $FOLDER"
+ls -la "$FOLDER"
+
 cp "$FOLDER/ffmpeg" "$TARGET/ffmpeg/ffmpeg"
 chmod +x "$TARGET/ffmpeg/ffmpeg"
 
