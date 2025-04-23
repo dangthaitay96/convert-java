@@ -12,8 +12,8 @@ chmod +x "$TARGET/yt-dlp"
 
 # 2. Tải ffmpeg (.tar.gz)
 mkdir -p "$TARGET/ffmpeg"
-curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.gz -o ffmpeg.tar.gz
-tar -xzf ffmpeg.tar.gz
+curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ffmpeg.tar.xz
+tar -xf ffmpeg.tar.xz
 
 # 3. Lấy folder đã giải nén
 FOLDER=$(find . -maxdepth 1 -type d -name "ffmpeg-*-static" | head -n 1)
