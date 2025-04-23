@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jdk
 
-RUN apt-get update && apt-get install -y xz-utils unzip curl wget
+RUN apt-get update && apt-get install -y xz-utils curl wget unzip python3
 
 WORKDIR /app
 COPY . .
