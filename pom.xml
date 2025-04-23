@@ -86,5 +86,15 @@
             </plugin>
         </plugins>
 
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>bin/**</include> <!-- ✅ Đảm bảo file nhị phân được đóng gói -->
+                </includes>
+            </resource>
+        </resources>
+
+
     </build>
 </project>
