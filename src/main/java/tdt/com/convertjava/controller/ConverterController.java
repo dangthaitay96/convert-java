@@ -17,9 +17,6 @@ public class ConverterController {
   @PostMapping("/convert")
   public ResponseEntity<InputStreamResource> convertDiuTupToMp3(@RequestParam String a) {
     try {
-//      String ytdlpPath = "D:/tools/yt-dlp.exe";
-//      String ffmpegDir = "D:/tools/ffmpeg/bin";
-      // Trong hàm của controller:
       String ytdlpPath =
           ExecutableResolver.resolve(
               "bin/yt-dlp.exe", // resource path cho Windows (nếu có)
@@ -139,17 +136,4 @@ public class ConverterController {
             .replaceAll("Đ", "D");
     return noDiacritics.replaceAll("[^\\x20-\\x7E]", "_");
   }
-
-  //  private File extractToTempFile(String resourcePath, String fileName) throws IOException {
-  //    InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath);
-  //    if (in == null) {
-  //      throw new FileNotFoundException("Resource not found: " + resourcePath);
-  //    }
-  //
-  //    File tempFile = File.createTempFile(fileName, "");
-  //    tempFile.setExecutable(true);
-  //    Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-  //    return tempFile;
-  //  }
-
 }

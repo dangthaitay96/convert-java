@@ -1,11 +1,8 @@
 FROM eclipse-temurin:17-jdk
 
-RUN apt-get update && apt-get install -y xz-utils curl wget unzip python3
-
 WORKDIR /app
 COPY . .
 
-RUN chmod +x ./scripts/download-tools.sh && ./scripts/download-tools.sh
 RUN chmod +x ./mvnw
 RUN ./mvnw clean install
 
